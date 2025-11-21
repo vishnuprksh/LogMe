@@ -15,6 +15,17 @@ def save_schedule(schedule):
     with open("schedule.json", "w") as f:
         json.dump(schedule, f, indent=4)
 
+def load_user_profile():
+    try:
+        with open("user_profile.json", "r") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return {"profile_text": ""}
+
+def save_user_profile(profile):
+    with open("user_profile.json", "w") as f:
+        json.dump(profile, f, indent=4)
+
 # Define tools for the model
 function_declarations = [
     {
@@ -62,6 +73,22 @@ function_declarations = [
         "name": "get_current_date",
         "description": "Get the current date in YYYY-MM-DD format",
         "parameters": {"type": "object", "properties": {}}
+    },
+    {
+        "name": "update_user_profile",
+        "description": "Update user profile with any information about the user (name, job, preferences, goals, interests, habits, personality, etc.). Append new information to existing profile text.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "info": {"type": "string", "description": "Information to add to the user profile"}
+            },
+            "required": ["info"]
+        }
+    },
+    {
+        "name": "get_user_profile",
+        "description": "Get the current user profile information",
+        "parameters": {"type": "object", "properties": {}}
     }
 ]
 
@@ -81,6 +108,7 @@ config = types.GenerateContentConfig(tools=tools)
 
 # Load schedule
 schedule = load_schedule()
+user_profile = load_user_profile()
 
 # Initialize contents with initial prompt
 contents = [
@@ -90,10 +118,14 @@ contents = [
             types.Part(text=f"""You are a personal scheduling assistant. Manage the user's schedule using the available tools. 
 Current date: {datetime.date.today().strftime('%Y-%m-%d')}. 
 Current schedule: {json.dumps(schedule)}
+User profile: {json.dumps(user_profile)}
+
+IMPORTANT: Never mention tool calls, function calls, or show tool outputs in your responses. Just respond naturally based on the results.
 
 When the user asks you to decide or choose a time, analyze their current schedule and suggest available time slots that don't conflict with existing events. 
 Be proactive in suggesting times based on:
 - Avoiding conflicts with existing events
+- User preferences from their profile (morning_start, evening_end, preferred times)
 - Common preferences (e.g., morning for exercise, afternoon for meetings)
 - Gaps in their schedule
 Always provide 2-3 time options when suggesting.
@@ -104,6 +136,10 @@ For example:
 - "I lack GK" → Suggest adding daily/weekly GK reading or quiz sessions
 - "I need to exercise" → Suggest adding workout sessions
 - "I want to learn X" → Suggest adding study/practice sessions
+
+When the user shares personal information (name, job, preferences, goals, interests, habits, personality traits, etc.), 
+silently update their profile using update_user_profile without mentioning it in your response.
+Use the user profile to personalize your responses and suggestions based on what you know about them.
 
 Always relate their goals back to their schedule and offer to help them make time for improvement.""")
         ],
@@ -191,6 +227,17 @@ while True:
                     result = "Invalid index."
             elif call.name == "get_current_date":
                 result = datetime.date.today().strftime("%Y-%m-%d")
+            elif call.name == "update_user_profile":
+                info = call.args.get("info", "")
+                if info:
+                    if user_profile["profile_text"]:
+                        user_profile["profile_text"] += "\n" + info
+                    else:
+                        user_profile["profile_text"] = info
+                    save_user_profile(user_profile)
+                result = "Profile updated"
+            elif call.name == "get_user_profile":
+                result = user_profile["profile_text"]
             if result:
                 # Send the function response
                 contents.append(types.Content(
@@ -202,6 +249,8 @@ while True:
                 if follow_up.candidates and follow_up.candidates[0].content.parts:
                     for fpart in follow_up.candidates[0].content.parts:
                         if fpart.text:
-                            print("Gemini:", fpart.text)
-                            contents.append(types.Content(role="model", parts=[types.Part(text=fpart.text)]))
-                        # If more calls, but for simplicity, assume one
+                            # Filter out tool outputs from the response
+                            filtered_text = "\n".join([line for line in fpart.text.split("\n") if not line.strip().startswith("```tool_outputs") and not line.strip().startswith("```") and "tool_outputs" not in line])
+                            if filtered_text.strip():
+                                print("Gemini:", filtered_text)
+                                contents.append(types.Content(role="model", parts=[types.Part(text=fpart.text)]))

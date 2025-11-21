@@ -312,11 +312,6 @@
         },
         {
             "description": "Reading Time",
-            "date": "2025-12-25",
-            "time": "9:00 AM"
-        },
-        {
-            "description": "Reading Time",
             "date": "2026-01-01",
             "time": "9:00 AM"
         },
@@ -363,11 +358,6 @@
         {
             "description": "Reading Time",
             "date": "2025-11-22",
-            "time": "9:00 AM"
-        },
-        {
-            "description": "Reading Time",
-            "date": "2025-11-29",
             "time": "9:00 AM"
         },
         {
@@ -429,6 +419,11 @@
             "description": "Reading Time",
             "date": "2026-01-04",
             "time": "9:00 AM"
+        },
+        {
+            "description": "Instagram Reels Time",
+            "date": "2025-11-22",
+            "time": "9:00 PM"
         }
     ]
 }

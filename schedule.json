@@ -1,0 +1,434 @@
+{
+    "events": [
+        {
+            "description": "meeting with kiran",
+            "date": "2025-06-05",
+            "time": "6pm"
+        },
+        {
+            "description": "eko",
+            "date": "2025-11-22",
+            "time": "5pm"
+        },
+        {
+            "description": "meeting with sasi",
+            "date": "2025-06-05",
+            "time": "5pm"
+        },
+        {
+            "description": "Football practice",
+            "date": "2025-11-25",
+            "time": "11:00 AM"
+        },
+        {
+            "description": "Football practice",
+            "date": "2025-12-02",
+            "time": "11:00 AM"
+        },
+        {
+            "description": "Football practice",
+            "date": "2025-12-09",
+            "time": "11:00 AM"
+        },
+        {
+            "description": "Football practice",
+            "date": "2025-12-16",
+            "time": "11:00 AM"
+        },
+        {
+            "description": "Football practice",
+            "date": "2025-12-23",
+            "time": "11:00 AM"
+        },
+        {
+            "description": "Football practice",
+            "date": "2025-12-30",
+            "time": "11:00 AM"
+        },
+        {
+            "description": "Football practice",
+            "date": "2026-01-06",
+            "time": "11:00 AM"
+        },
+        {
+            "description": "Football practice",
+            "date": "2026-01-13",
+            "time": "11:00 AM"
+        },
+        {
+            "description": "Football practice",
+            "date": "2026-01-20",
+            "time": "11:00 AM"
+        },
+        {
+            "description": "Football practice",
+            "date": "2026-01-27",
+            "time": "11:00 AM"
+        },
+        {
+            "description": "Football practice",
+            "date": "2026-02-03",
+            "time": "11:00 AM"
+        },
+        {
+            "description": "Football practice",
+            "date": "2026-02-10",
+            "time": "11:00 AM"
+        },
+        {
+            "description": "Football practice",
+            "date": "2026-02-17",
+            "time": "11:00 AM"
+        },
+        {
+            "description": "Football practice",
+            "date": "2026-02-24",
+            "time": "11:00 AM"
+        },
+        {
+            "description": "Football practice",
+            "date": "2026-03-03",
+            "time": "11:00 AM"
+        },
+        {
+            "description": "Football practice",
+            "date": "2026-03-10",
+            "time": "11:00 AM"
+        },
+        {
+            "description": "Football practice",
+            "date": "2026-03-17",
+            "time": "11:00 AM"
+        },
+        {
+            "description": "Football practice",
+            "date": "2025-11-27",
+            "time": "11:00 AM"
+        },
+        {
+            "description": "Football practice",
+            "date": "2025-12-04",
+            "time": "11:00 AM"
+        },
+        {
+            "description": "Football practice",
+            "date": "2025-12-11",
+            "time": "11:00 AM"
+        },
+        {
+            "description": "Football practice",
+            "date": "2025-12-18",
+            "time": "11:00 AM"
+        },
+        {
+            "description": "Football practice",
+            "date": "2025-12-25",
+            "time": "11:00 AM"
+        },
+        {
+            "description": "Football practice",
+            "date": "2026-01-01",
+            "time": "11:00 AM"
+        },
+        {
+            "description": "Football practice",
+            "date": "2026-01-08",
+            "time": "11:00 AM"
+        },
+        {
+            "description": "Football practice",
+            "date": "2026-01-15",
+            "time": "11:00 AM"
+        },
+        {
+            "description": "Football practice",
+            "date": "2026-01-22",
+            "time": "11:00 AM"
+        },
+        {
+            "description": "Football practice",
+            "date": "2026-01-29",
+            "time": "11:00 AM"
+        },
+        {
+            "description": "Football practice",
+            "date": "2026-02-05",
+            "time": "11:00 AM"
+        },
+        {
+            "description": "Football practice",
+            "date": "2026-02-12",
+            "time": "11:00 AM"
+        },
+        {
+            "description": "Football practice",
+            "date": "2026-02-19",
+            "time": "11:00 AM"
+        },
+        {
+            "description": "Football practice",
+            "date": "2026-02-26",
+            "time": "11:00 AM"
+        },
+        {
+            "description": "Football practice",
+            "date": "2026-03-05",
+            "time": "11:00 AM"
+        },
+        {
+            "description": "Football practice",
+            "date": "2026-03-12",
+            "time": "11:00 AM"
+        },
+        {
+            "description": "Football practice",
+            "date": "2026-03-19",
+            "time": "11:00 AM"
+        },
+        {
+            "description": "Reading Time",
+            "date": "2025-11-24",
+            "time": "9:00 AM"
+        },
+        {
+            "description": "Reading Time",
+            "date": "2025-12-01",
+            "time": "9:00 AM"
+        },
+        {
+            "description": "Reading Time",
+            "date": "2025-12-08",
+            "time": "9:00 AM"
+        },
+        {
+            "description": "Reading Time",
+            "date": "2025-12-15",
+            "time": "9:00 AM"
+        },
+        {
+            "description": "Reading Time",
+            "date": "2025-12-22",
+            "time": "9:00 AM"
+        },
+        {
+            "description": "Reading Time",
+            "date": "2025-12-29",
+            "time": "9:00 AM"
+        },
+        {
+            "description": "Reading Time",
+            "date": "2026-01-05",
+            "time": "9:00 AM"
+        },
+        {
+            "description": "Reading Time",
+            "date": "2025-11-25",
+            "time": "9:00 AM"
+        },
+        {
+            "description": "Reading Time",
+            "date": "2025-12-02",
+            "time": "9:00 AM"
+        },
+        {
+            "description": "Reading Time",
+            "date": "2025-12-09",
+            "time": "9:00 AM"
+        },
+        {
+            "description": "Reading Time",
+            "date": "2025-12-16",
+            "time": "9:00 AM"
+        },
+        {
+            "description": "Reading Time",
+            "date": "2025-12-23",
+            "time": "9:00 AM"
+        },
+        {
+            "description": "Reading Time",
+            "date": "2025-12-30",
+            "time": "9:00 AM"
+        },
+        {
+            "description": "Reading Time",
+            "date": "2026-01-06",
+            "time": "9:00 AM"
+        },
+        {
+            "description": "Reading Time",
+            "date": "2025-11-26",
+            "time": "9:00 AM"
+        },
+        {
+            "description": "Reading Time",
+            "date": "2025-12-03",
+            "time": "9:00 AM"
+        },
+        {
+            "description": "Reading Time",
+            "date": "2025-12-10",
+            "time": "9:00 AM"
+        },
+        {
+            "description": "Reading Time",
+            "date": "2025-12-17",
+            "time": "9:00 AM"
+        },
+        {
+            "description": "Reading Time",
+            "date": "2025-12-24",
+            "time": "9:00 AM"
+        },
+        {
+            "description": "Reading Time",
+            "date": "2025-12-31",
+            "time": "9:00 AM"
+        },
+        {
+            "description": "Reading Time",
+            "date": "2026-01-07",
+            "time": "9:00 AM"
+        },
+        {
+            "description": "Reading Time",
+            "date": "2025-11-27",
+            "time": "9:00 AM"
+        },
+        {
+            "description": "Reading Time",
+            "date": "2025-12-04",
+            "time": "9:00 AM"
+        },
+        {
+            "description": "Reading Time",
+            "date": "2025-12-11",
+            "time": "9:00 AM"
+        },
+        {
+            "description": "Reading Time",
+            "date": "2025-12-18",
+            "time": "9:00 AM"
+        },
+        {
+            "description": "Reading Time",
+            "date": "2025-12-25",
+            "time": "9:00 AM"
+        },
+        {
+            "description": "Reading Time",
+            "date": "2026-01-01",
+            "time": "9:00 AM"
+        },
+        {
+            "description": "Reading Time",
+            "date": "2026-01-08",
+            "time": "9:00 AM"
+        },
+        {
+            "description": "Reading Time",
+            "date": "2025-11-28",
+            "time": "9:00 AM"
+        },
+        {
+            "description": "Reading Time",
+            "date": "2025-12-05",
+            "time": "9:00 AM"
+        },
+        {
+            "description": "Reading Time",
+            "date": "2025-12-12",
+            "time": "9:00 AM"
+        },
+        {
+            "description": "Reading Time",
+            "date": "2025-12-19",
+            "time": "9:00 AM"
+        },
+        {
+            "description": "Reading Time",
+            "date": "2025-12-26",
+            "time": "9:00 AM"
+        },
+        {
+            "description": "Reading Time",
+            "date": "2026-01-02",
+            "time": "9:00 AM"
+        },
+        {
+            "description": "Reading Time",
+            "date": "2026-01-09",
+            "time": "9:00 AM"
+        },
+        {
+            "description": "Reading Time",
+            "date": "2025-11-22",
+            "time": "9:00 AM"
+        },
+        {
+            "description": "Reading Time",
+            "date": "2025-11-29",
+            "time": "9:00 AM"
+        },
+        {
+            "description": "Reading Time",
+            "date": "2025-12-06",
+            "time": "9:00 AM"
+        },
+        {
+            "description": "Reading Time",
+            "date": "2025-12-13",
+            "time": "9:00 AM"
+        },
+        {
+            "description": "Reading Time",
+            "date": "2025-12-20",
+            "time": "9:00 AM"
+        },
+        {
+            "description": "Reading Time",
+            "date": "2025-12-27",
+            "time": "9:00 AM"
+        },
+        {
+            "description": "Reading Time",
+            "date": "2026-01-03",
+            "time": "9:00 AM"
+        },
+        {
+            "description": "Reading Time",
+            "date": "2025-11-23",
+            "time": "9:00 AM"
+        },
+        {
+            "description": "Reading Time",
+            "date": "2025-11-30",
+            "time": "9:00 AM"
+        },
+        {
+            "description": "Reading Time",
+            "date": "2025-12-07",
+            "time": "9:00 AM"
+        },
+        {
+            "description": "Reading Time",
+            "date": "2025-12-14",
+            "time": "9:00 AM"
+        },
+        {
+            "description": "Reading Time",
+            "date": "2025-12-21",
+            "time": "9:00 AM"
+        },
+        {
+            "description": "Reading Time",
+            "date": "2025-12-28",
+            "time": "9:00 AM"
+        },
+        {
+            "description": "Reading Time",
+            "date": "2026-01-04",
+            "time": "9:00 AM"
+        }
+    ]
+}

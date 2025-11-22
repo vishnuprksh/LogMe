@@ -18,9 +18,19 @@ def save_schedule(schedule):
 def load_user_profile():
     try:
         with open("user_profile.json", "r") as f:
-            return json.load(f)
+            profile = json.load(f)
+            # If old format with profile_text, convert to dict
+            if "profile_text" in profile:
+                # Simple parse: assume lines like "key: value"
+                new_profile = {}
+                for line in profile["profile_text"].split('\n'):
+                    if ':' in line:
+                        key, value = line.split(':', 1)
+                        new_profile[key.strip().lower()] = value.strip()
+                return new_profile
+            return profile
     except FileNotFoundError:
-        return {"profile_text": ""}
+        return {}
 
 def save_user_profile(profile):
     with open("user_profile.json", "w") as f:
@@ -76,13 +86,16 @@ function_declarations = [
     },
     {
         "name": "update_user_profile",
-        "description": "Update user profile with any information about the user (name, job, preferences, goals, interests, habits, personality, etc.). Append new information to existing profile text.",
+        "description": "Update user profile with any information about the user (name, job, preferences, goals, interests, habits, personality, etc.). Provide updates as key-value pairs.",
         "parameters": {
             "type": "object",
             "properties": {
-                "info": {"type": "string", "description": "Information to add to the user profile"}
+                "updates": {
+                    "type": "object",
+                    "description": "Dictionary of key-value pairs to update in the profile"
+                }
             },
-            "required": ["info"]
+            "required": ["updates"]
         }
     },
     {
@@ -96,29 +109,21 @@ tools = [
     types.Tool(function_declarations=function_declarations)
 ]
 
-# Set up the API key from environment variable
-api_key = os.getenv("GEMINI_API_KEY")
-if not api_key:
-    print("Please set the GEMINI_API_KEY environment variable.")
-    exit(1)
+class ChatSession:
+    def __init__(self):
+        self.schedule = load_schedule()
+        self.user_profile = load_user_profile()
+        self.contents = self._initialize_contents()
 
-client = genai.Client(api_key=api_key)
-model = "gemini-2.0-flash"
-config = types.GenerateContentConfig(tools=tools)
-
-# Load schedule
-schedule = load_schedule()
-user_profile = load_user_profile()
-
-# Initialize contents with initial prompt
-contents = [
-    types.Content(
-        role="user",
-        parts=[
-            types.Part(text=f"""You are a personal scheduling assistant. Manage the user's schedule using the available tools. 
+    def _initialize_contents(self):
+        return [
+            types.Content(
+                role="user",
+                parts=[
+                    types.Part(text=f"""You are a personal scheduling assistant. Manage the user's schedule using the available tools. 
 Current date: {datetime.date.today().strftime('%Y-%m-%d')}. 
-Current schedule: {json.dumps(schedule)}
-User profile: {json.dumps(user_profile)}
+Current schedule: {json.dumps(self.schedule)}
+User profile: {json.dumps(self.user_profile)}
 
 IMPORTANT: Never mention tool calls, function calls, or show tool outputs in your responses. Just respond naturally based on the results.
 
@@ -142,9 +147,104 @@ silently update their profile using update_user_profile without mentioning it in
 Use the user profile to personalize your responses and suggestions based on what you know about them.
 
 Always relate their goals back to their schedule and offer to help them make time for improvement.""")
-        ],
-    ),
-]
+                ],
+            ),
+        ]
+
+    def add_user_message(self, user_input):
+        self.contents.append(types.Content(role="user", parts=[types.Part(text=user_input)]))
+
+    def add_model_response(self, text):
+        self.contents.append(types.Content(role="model", parts=[types.Part(text=text)]))
+
+    def add_function_response(self, call_name, result):
+        self.contents.append(types.Content(
+            role="model",
+            parts=[types.Part(function_response=types.FunctionResponse(name=call_name, response={"result": result}))]
+        ))
+
+    def handle_function_call(self, call):
+        result = ""
+        if call.name == "add_event":
+            desc = call.args.get("description", "")
+            date = call.args.get("date", "")
+            time = call.args.get("time", "")
+            recurring = call.args.get("recurring")
+            if not desc:
+                result = "Description is required."
+            elif not time:
+                result = "Time is required for all events."
+            elif recurring:
+                frequency = recurring.get("frequency", "weekly")
+                days = recurring.get("days", [])
+                count = recurring.get("count", 4)
+                if not days:
+                    result = "Days are required for recurring events."
+                else:
+                    today = datetime.date.today()
+                    days_map = {"monday": 0, "tuesday": 1, "wednesday": 2, "thursday": 3, "friday": 4, "saturday": 5, "sunday": 6}
+                    added = []
+                    for day in days:
+                        day_num = days_map.get(day.lower())
+                        if day_num is not None:
+                            days_ahead = (day_num - today.weekday()) % 7
+                            if days_ahead == 0:
+                                days_ahead = 7
+                            event_date = today + datetime.timedelta(days=days_ahead)
+                            for _ in range(count):
+                                self.schedule["events"].append({"description": desc, "date": event_date.strftime("%Y-%m-%d"), "time": time})
+                                added.append(f"{day} {event_date.strftime('%Y-%m-%d')}")
+                                event_date += datetime.timedelta(days=7)
+                    result = f"Added recurring events: {desc} on {', '.join(added)}"
+                    save_schedule(self.schedule)
+            else:
+                if not date:
+                    result = "Date is required for single events."
+                else:
+                    event = {"description": desc, "date": date, "time": time}
+                    self.schedule["events"].append(event)
+                    result = f"Added event: {desc} on {date} at {time}"
+                    save_schedule(self.schedule)
+        elif call.name == "list_events":
+            date_filter = call.args.get("date")
+            filtered_events = self.schedule["events"]
+            if date_filter:
+                filtered_events = [e for e in self.schedule["events"] if e["date"] == date_filter]
+            if filtered_events:
+                result = "\n".join([f"{i}. {e['description']} on {e['date']} at {e['time']}" for i, e in enumerate(filtered_events)])
+            else:
+                result = f"No events scheduled{' on ' + date_filter if date_filter else ''}."
+        elif call.name == "remove_event":
+            index = call.args.get("index", -1)
+            if 0 <= index < len(self.schedule["events"]):
+                removed = self.schedule["events"].pop(index)
+                save_schedule(self.schedule)
+                result = f"Removed event: {removed['description']}"
+            else:
+                result = "Invalid index."
+        elif call.name == "get_current_date":
+            result = datetime.date.today().strftime("%Y-%m-%d")
+        elif call.name == "update_user_profile":
+            updates = call.args.get("updates", {})
+            self.user_profile.update(updates)
+            save_user_profile(self.user_profile)
+            result = "Profile updated"
+        elif call.name == "get_user_profile":
+            result = json.dumps(self.user_profile) if self.user_profile else "No profile information available."
+        
+        if result:
+            self.add_function_response(call.name, result)
+        return result
+
+# Set up the API key from environment variable
+api_key = os.getenv("GEMINI_API_KEY")
+if not api_key:
+    print("Please set the GEMINI_API_KEY environment variable.")
+    exit(1)
+
+client = genai.Client(api_key=api_key)
+model = "gemini-2.0-flash"
+config = types.GenerateContentConfig(tools=tools)
 
 print("Chat with Gemini Flash 2.0. Type 'exit' to quit.")
 
@@ -152,9 +252,11 @@ while True:
     user_input = input("You: ")
     if user_input.lower() == 'exit':
         break
-    contents.append(types.Content(role="user", parts=[types.Part(text=user_input)]))
     
-    response = client.models.generate_content(model=model, contents=contents, config=config)
+    session = ChatSession()
+    session.add_user_message(user_input)
+    
+    response = client.models.generate_content(model=model, contents=session.contents, config=config)
     
     if not response.candidates or not response.candidates[0].content.parts:
         print("Gemini: No response received.")
@@ -163,89 +265,14 @@ while True:
     for part in response.candidates[0].content.parts:
         if part.text:
             print("Gemini:", part.text)
-            contents.append(types.Content(role="model", parts=[types.Part(text=part.text)]))
+            session.add_model_response(part.text)
         if part.function_call:
             call = part.function_call
-            result = ""
-            if call.name == "add_event":
-                desc = call.args.get("description", "")
-                date = call.args.get("date", "")
-                time = call.args.get("time", "")
-                recurring = call.args.get("recurring")
-                if not desc:
-                    result = "Description is required."
-                elif not time:
-                    result = "Time is required for all events."
-                elif recurring:
-                    # Handle recurring
-                    frequency = recurring.get("frequency", "weekly")
-                    days = recurring.get("days", [])
-                    count = recurring.get("count", 4)
-                    if not days:
-                        result = "Days are required for recurring events."
-                    else:
-                        today = datetime.date.today()
-                        days_map = {"monday": 0, "tuesday": 1, "wednesday": 2, "thursday": 3, "friday": 4, "saturday": 5, "sunday": 6}
-                        added = []
-                        for day in days:
-                            day_num = days_map.get(day.lower())
-                            if day_num is not None:
-                                days_ahead = (day_num - today.weekday()) % 7
-                                if days_ahead == 0:
-                                    days_ahead = 7
-                                event_date = today + datetime.timedelta(days=days_ahead)
-                                for _ in range(count):
-                                    schedule["events"].append({"description": desc, "date": event_date.strftime("%Y-%m-%d"), "time": time})
-                                    added.append(f"{day} {event_date.strftime('%Y-%m-%d')}")
-                                    event_date += datetime.timedelta(days=7)
-                        result = f"Added recurring events: {desc} on {', '.join(added)}"
-                        save_schedule(schedule)
-                else:
-                    if not date:
-                        result = "Date is required for single events."
-                    else:
-                        event = {"description": desc, "date": date, "time": time}
-                        schedule["events"].append(event)
-                        result = f"Added event: {desc} on {date} at {time}"
-                        save_schedule(schedule)
-            elif call.name == "list_events":
-                date_filter = call.args.get("date")
-                filtered_events = schedule["events"]
-                if date_filter:
-                    filtered_events = [e for e in schedule["events"] if e["date"] == date_filter]
-                if filtered_events:
-                    result = "\n".join([f"{i}. {e['description']} on {e['date']} at {e['time']}" for i, e in enumerate(filtered_events)])
-                else:
-                    result = f"No events scheduled{' on ' + date_filter if date_filter else ''}."
-            elif call.name == "remove_event":
-                index = call.args.get("index", -1)
-                if 0 <= index < len(schedule["events"]):
-                    removed = schedule["events"].pop(index)
-                    save_schedule(schedule)
-                    result = f"Removed event: {removed['description']}"
-                else:
-                    result = "Invalid index."
-            elif call.name == "get_current_date":
-                result = datetime.date.today().strftime("%Y-%m-%d")
-            elif call.name == "update_user_profile":
-                info = call.args.get("info", "")
-                if info:
-                    if user_profile["profile_text"]:
-                        user_profile["profile_text"] += "\n" + info
-                    else:
-                        user_profile["profile_text"] = info
-                    save_user_profile(user_profile)
-                result = "Profile updated"
-            elif call.name == "get_user_profile":
-                result = user_profile["profile_text"]
+            result = session.handle_function_call(call)
+            
             if result:
-                # Send the function response
-                contents.append(types.Content(
-                    role="model",
-                    parts=[types.Part(function_response=types.FunctionResponse(name=call.name, response={"result": result}))]
-                ))
                 # Then, generate follow-up response
-                follow_up = client.models.generate_content(model=model, contents=contents, config=config)
+                follow_up = client.models.generate_content(model=model, contents=session.contents, config=config)
                 if follow_up.candidates and follow_up.candidates[0].content.parts:
                     for fpart in follow_up.candidates[0].content.parts:
                         if fpart.text:
@@ -253,4 +280,4 @@ while True:
                             filtered_text = "\n".join([line for line in fpart.text.split("\n") if not line.strip().startswith("```tool_outputs") and not line.strip().startswith("```") and "tool_outputs" not in line])
                             if filtered_text.strip():
                                 print("Gemini:", filtered_text)
-                                contents.append(types.Content(role="model", parts=[types.Part(text=fpart.text)]))
+                                session.add_model_response(fpart.text)

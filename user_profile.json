@@ -1,3 +1,5 @@
 {
-    "profile_text": "name: vishnu\nlikes cats\ndoesn't like cats, likes dogs"
+    "name": "sasi",
+    "preferences": "doesn't like cats, likes dogs",
+    "job": "data scientist"
 }
